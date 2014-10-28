@@ -93,10 +93,6 @@ namespace SteamServer
         {
             Position = 0;
         }
-        public List<Byte> GetBuffer()
-        {
-            return Buffer;
-        }
 
         // Base functions.
         public Boolean Read(UInt32 Count, ref Byte[] Output)
@@ -104,7 +100,7 @@ namespace SteamServer
             if (Position + Count > Buffer.Count)
                 return false;
 
-            if (Output == null)
+            if (Output != null)
             {
                 Output = new Byte[Count];
 
@@ -157,7 +153,7 @@ namespace SteamServer
         }
         public Boolean WriteDataType(Byte Type)
         {
-            return Write(1, new Byte[1] { Type });
+            return Write(1, new Byte[1] {Type});
         }
 
         // Read.
@@ -197,7 +193,7 @@ namespace SteamServer
                 Result = Read(1, ref Temp);
                 Output = Temp[0];
             }
-
+            
             return Result;
         }
         public Boolean ReadInt16(ref Int16 Output)
@@ -236,7 +232,7 @@ namespace SteamServer
                 Result = Read(4, ref Temp);
                 Output = BitConverter.ToInt32(Temp, 0);
             }
-
+            
             return Result;
         }
         public Boolean ReadUInt32(ref UInt32 Output)
@@ -249,7 +245,7 @@ namespace SteamServer
                 Result = Read(4, ref Temp);
                 Output = BitConverter.ToUInt32(Temp, 0);
             }
-
+            
             return Result;
         }
         public Boolean ReadInt64(ref Int64 Output)
@@ -262,7 +258,7 @@ namespace SteamServer
                 Result = Read(8, ref Temp);
                 Output = BitConverter.ToInt64(Temp, 0);
             }
-
+            
             return Result;
         }
         public Boolean ReadUInt64(ref UInt64 Output)
@@ -275,7 +271,7 @@ namespace SteamServer
                 Result = Read(8, ref Temp);
                 Output = BitConverter.ToUInt64(Temp, 0);
             }
-
+            
             return Result;
         }
         public Boolean ReadFloat(ref Single Output)
@@ -410,10 +406,10 @@ namespace SteamServer
         {
             Byte[] Temp = Encoding.UTF8.GetBytes(Input);
 
-            if (!Write(1, BitConverter.GetBytes((Byte)DataTypes.STRING)))
+            if(!Write(1, BitConverter.GetBytes((Byte)DataTypes.STRING)))
                 return false;
 
-            if (!Write(4, BitConverter.GetBytes(Temp.Length)))
+           if(!Write(4, BitConverter.GetBytes(Temp.Length)))
                 return false;
 
             return Write((UInt32)Temp.Length, Temp);
