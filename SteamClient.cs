@@ -1,0 +1,78 @@
+﻿/*
+	This project is licensed under the GPL 2.0 license. Please respect that.
+
+	Initial author: (https://github.com/)Convery
+	Started: 2014-10-28
+	Notes:
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Net;
+using System.Net.Sockets;
+
+namespace SteamServer
+{
+    class SteamClient
+    {
+        // Identifiers.
+        public UInt32 ClientID; // Index for arrays.
+        public UInt64 XUID;     // Ingame identifier.
+        public UInt64 HWID;     // Hardware identifier.
+
+        // Networking.
+        public Socket ClientSocket;
+        public static Int32 BufferSize = 2048;          // A client should generally send less than 1024 bytes of data per packet.
+        public Byte[] Buffer = new Byte[BufferSize];    // The data sent will be stored here.
+        public DateTime LastPacket = DateTime.Now;      // We need to drop the client if it times out.
+        public IPAddress GetIP()
+        {
+            try
+            {
+                return (ClientSocket.RemoteEndPoint as IPEndPoint).Address;
+            }
+            catch (SocketException)
+            {
+                return null;
+            }
+        }
+
+        // Client-client communication.
+        public Queue<SteamMessage> MessageQueue = new Queue<SteamMessage>();
+        public bool EnqueueMessage(SteamMessage Message)
+        {
+            try
+            {
+                // Impose a 5 sec delay on messages from the same XUID.
+                if (Math.Floor((DateTime.Now - MessageQueue.Last(item => item.IM.FromXUID == Message.IM.FromXUID).Timestamp).TotalSeconds) < 5)
+                    return false;
+
+                MessageQueue.Enqueue(Message);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Warning(e.Message);
+                return false;
+            }
+        }
+        public bool EnqueueMessage(UInt64 ToXUID, Byte[] Message)
+        {
+            SteamMessage NewMessage = new SteamMessage();
+
+            NewMessage.Timestamp = DateTime.Now;
+            NewMessage.IM.TimeStamp = (UInt32)DateTime.Now.ToFileTime();
+            NewMessage.IM.FromXUID = ToXUID;
+            NewMessage.IM.ToXUID = XUID;
+            NewMessage.IM.Message = Message;
+
+            return EnqueueMessage(NewMessage);
+        }
+
+
+
+
+    }
+}
