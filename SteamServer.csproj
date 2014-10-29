@@ -44,6 +44,7 @@
     <Compile Include="SteamClient.cs" />
     <Compile Include="SteamMessage.cs" />
     <Compile Include="SteamServer.cs" />
+    <Compile Include="SteamFriend.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
