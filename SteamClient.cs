@@ -18,6 +18,7 @@ namespace SteamServer
     class SteamClient
     {
         // Identifiers.
+        public Byte[] Username; // Ingame name.
         public UInt32 ClientID; // Index for arrays.
         public UInt64 XUID;     // Ingame identifier.
         public UInt64 HWID;     // Hardware identifier.
