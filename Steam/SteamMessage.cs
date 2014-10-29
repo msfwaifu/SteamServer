@@ -47,7 +47,7 @@ namespace SteamServer
 
             return true;
         }
-        public bool Deserialize(ref redBuffer Buffer)
+        public bool Deserialize(redBuffer Buffer)
         {
             try
             {

@@ -92,11 +92,11 @@ namespace SteamServer
                 }
             }
         }
-        public static void Send(UInt32 ID, byte[] Data)
+        public static void Send(UInt32 ID, Byte[] Data)
         {
             if (!isClientConnected(ID))
             {
-                removeClient(ID);
+                RemoveClient(ID);
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace SteamServer
 
                 if (e is SocketException)
                 {
-                    removeClient(ID);
+                    RemoveClient(ID);
                 }
             }
         }
@@ -143,8 +143,43 @@ namespace SteamServer
         }
 
         // Client methods.
+        public static UInt32 FindClient(UInt64 XUID)
+        {
+            try
+            {
+                var Query = (from Client in Clients
+                             where (Client.Value.XUID == XUID)
+                             select Client.Key).ToList();
+
+                if (Query.Count >= 1)
+                    return Query[0];
+            }
+            catch (Exception e)
+            {
+            }
+            return 0xFFFFFFFF;
+        }
+        public static UInt32 FindClient(Byte[] Username)
+        {
+            try
+            {
+                var Query = (from Client in Clients
+                             where (SteamCrypto.fnv1_hash(Client.Value.Username) == SteamCrypto.fnv1_hash(Username))
+                             select Client.Key).ToList();
+
+                if (Query.Count >= 1)
+                    return Query[0];
+            }
+            catch (Exception e)
+            {
+            }
+            return 0xFFFFFFFF;
+        }
         public static bool isClientConnected(UInt32 ID)
         {
+            if (ID == 0xFFFFFFFF)
+                return false;
+
             try
             {
                 lock(Clients)
@@ -156,8 +191,11 @@ namespace SteamServer
                 return false;
             }
         }
-        public static void removeClient(UInt32 ID)
+        public static void RemoveClient(UInt32 ID)
         {
+            if (ID == 0xFFFFFFFF)
+                return;
+
             lock (Clients)
             {
                 try
@@ -233,7 +271,7 @@ namespace SteamServer
             {
                 if (e is SocketException)
                 {
-                    removeClient(Client.ClientID);
+                    RemoveClient(Client.ClientID);
                     return;
                 }
 
@@ -246,12 +284,6 @@ namespace SteamServer
 
             try
             {
-                if (Client.Buffer[0] == 0)
-                {
-                    Log.Debug("Clients buffer is null");
-                    removeClient(Client.ClientID);
-                }
-
                 if (Client.ClientSocket.EndReceive(result) == SteamClient.BufferSize)
                 {
                     Client.ClientSocket.BeginReceive(Client.Buffer, 0, SteamClient.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), Client);
@@ -261,9 +293,6 @@ namespace SteamServer
                     // We handle the packet and send a response here.
                     //Send(Client.ClientID, PacketHandler.HandlePacket(Client));
 
-                    // Mark the buffer as empty.
-                    Client.Buffer[0] = 0;
-
                     // Continue.
                     Client.ClientSocket.BeginReceive(Client.Buffer, 0, SteamClient.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), Client);
                 }
@@ -271,7 +300,7 @@ namespace SteamServer
             catch (Exception e)
             {
                 Log.Warning(e.Message);
-                removeClient(Client.ClientID);
+                RemoveClient(Client.ClientID);
             }
         }
     }

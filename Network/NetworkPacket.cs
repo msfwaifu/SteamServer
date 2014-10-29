@@ -17,11 +17,11 @@ namespace SteamServer
     // The packets we handle.
     public enum PublicPacketTypes : ulong
     {
-        P2PMessage = 134
+        P2PMessage = 134,
     }
     public enum PrivatePacketTypes : ulong
     {
-
+        Authentication = 99,
     }
 
     class NetworkPacket
@@ -34,7 +34,7 @@ namespace SteamServer
         public UInt32 _IP;
         public Byte[] _Data;
 
-        void Serialize(ref redBuffer Buffer, SteamClient Client)
+        public void Serialize(ref redBuffer Buffer, SteamClient Client)
         {
             Byte[] IV   = new Byte[24];
             Byte[] Key  = new Byte[24];
@@ -63,7 +63,7 @@ namespace SteamServer
             // Write the encrypted data to the packet.
             Buffer.WriteBlob(EncryptedData);
         }
-        void Deserialize(ref redBuffer Buffer, SteamClient Client)
+        public void Deserialize(redBuffer Buffer, SteamClient Client)
         {
             Byte[] IV = new Byte[24];
             Byte[] Key = new Byte[24];
@@ -86,7 +86,7 @@ namespace SteamServer
             _Data = new Byte[_Data.Length];
             _Data = SteamCrypto.Decrypt(EncryptedData, Key, IV);
         }
-        void CreatePacket(UInt64 TransactionID, UInt32 Type, ref redBuffer Data, SteamClient Client)
+        public void CreatePacket(UInt64 TransactionID, UInt32 Type, redBuffer Data, SteamClient Client)
         {
             _TransactionID = TransactionID;
             _XUID = Client.XUID;
@@ -97,6 +97,20 @@ namespace SteamServer
 
             _Data = new Byte[Data.Length()];
             Array.Copy(Data.GetBuffer(), _Data, Data.Length());
+        }
+
+        public static Byte[] QuickMessage(UInt64 TransactionID, UInt32 Type, String Data, SteamClient Client)
+        {
+            NetworkPacket NewPacket = new NetworkPacket();
+            redBuffer NewBuffer = new redBuffer();
+
+            NewBuffer.WriteBlob(Encoding.ASCII.GetBytes(Data));
+            NewPacket.CreatePacket(TransactionID, Type, NewBuffer, Client);
+
+            NewBuffer.Rewind();
+            NewPacket.Serialize(ref NewBuffer, Client);
+
+            return NewBuffer.GetBuffer();
         }
     }
 }
