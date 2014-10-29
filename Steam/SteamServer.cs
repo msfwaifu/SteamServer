@@ -1,5 +1,5 @@
 ﻿/*
-	This project is licensed under the GPL 2.0 license. Please respect that.
+	All files containing this header is released under the GPL 3.0 license.
 
 	Initial author: (https://github.com/)Convery
 	Started: 2014-10-28
@@ -36,7 +36,7 @@ namespace SteamServer
         private static UInt16 Limit = 250; // Backlog.
         private static ManualResetEvent MRE = new ManualResetEvent(false);
         public  static Dictionary<UInt32, SteamClient> Clients = new Dictionary<UInt32, SteamClient>(); // Client map.
-        //public  static redPacketHandler PacketHandler = new redPacketHandler(); // Handles all incomming packets.
+        public static ServiceManager ServiceRouter = new ServiceManager(); // Handles all incomming packets.
 
         // General methods.
         public static void InitServer()
@@ -292,6 +292,7 @@ namespace SteamServer
                 {
                     // We handle the packet and send a response here.
                     //Send(Client.ClientID, PacketHandler.HandlePacket(Client));
+
 
                     // Continue.
                     Client.ClientSocket.BeginReceive(Client.Buffer, 0, SteamClient.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), Client);

@@ -1,5 +1,5 @@
 ﻿/*
-	This project is licensed under the GPL 2.0 license. Please respect that.
+	All files containing this header is released under the GPL 3.0 license.
 
 	Initial author: (https://github.com/)Convery
 	Started: 2014-10-29
@@ -15,7 +15,7 @@ namespace SteamServer.Services
 {
     class Message : Base
     {
-        public void HandlePacket(ref NetworkPacket Packet, ref SteamClient Client)
+        public override void HandlePacket(ref NetworkPacket Packet, ref SteamClient Client)
         {
             SteamMessage NewMessage = new SteamMessage();
             NewMessage.Deserialize(new redBuffer(Packet._Data));

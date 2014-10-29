@@ -1,10 +1,10 @@
 ﻿/*
-	This project is licensed under the GPL 2.0 license. Please respect that.
+	All files containing this header is released under the GPL 3.0 license.
 
 	Initial author: (https://github.com/)Convery
 	Started: 2014-10-28
 	Notes:
-		This buffer is based on DemonWares bdByteBuffer.
+        This buffer is based on DemonWares bdByteBuffer.
         Should really be rewritten with unsafe code.
 */
 

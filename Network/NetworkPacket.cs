@@ -1,5 +1,5 @@
 ﻿/*
-	This project is licensed under the GPL 2.0 license. Please respect that.
+	All files containing this header is released under the GPL 3.0 license.
 
 	Initial author: (https://github.com/)Convery
 	Started: 2014-10-29
@@ -15,11 +15,11 @@ using System.Text;
 namespace SteamServer
 {
     // The packets we handle.
-    public enum PublicPacketTypes : ulong
+    public enum PublicPacketTypes
     {
         P2PMessage = 134,
     }
-    public enum PrivatePacketTypes : ulong
+    public enum PrivatePacketTypes
     {
         Authentication = 99,
     }

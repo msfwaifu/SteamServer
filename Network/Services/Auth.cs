@@ -13,8 +13,13 @@ using System.Text;
 
 namespace SteamServer.Services
 {
-    class Base
+    class Auth : Base
     {
-        public virtual void HandlePacket(ref NetworkPacket Packet, ref SteamClient Client) { }
+        public override void HandlePacket(ref NetworkPacket Packet, ref SteamClient Client)
+        {
+
+
+
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿/*
-	This project is licensed under the GPL 2.0 license. Please respect that.
+	All files containing this header is released under the GPL 3.0 license.
 
 	Initial author: (https://github.com/)Convery
 	Started: 2014-10-29
@@ -17,14 +17,15 @@ namespace SteamServer
     class ServiceManager
     {
         // Map of services.
-        Dictionary<ulong, Services.Base> ServiceMap;
+        Dictionary<UInt32, Services.Base> ServiceMap;
 
         // Initialize the services.
         public ServiceManager()
         {
-            ServiceMap = new Dictionary<ulong, Services.Base>();
+            ServiceMap = new Dictionary<UInt32, Services.Base>();
 
-
+            ServiceMap.Add((UInt32)PublicPacketTypes.P2PMessage, new Services.Message());
+            ServiceMap.Add((UInt32)PrivatePacketTypes.Authentication, new Services.Auth());
         }
 
         // Handles all packets and calls the service designated to the packet type.
@@ -43,8 +44,8 @@ namespace SteamServer
             Log.Debug(String.Format("PacketType: {0}", ServicePacket._Type));
 
             // Send the packet to the right service.
-            ServiceMap[ServicePacket._Type].HandlePacket(ref ServicePacket, ref Client);
+            if(ServiceMap.ContainsKey(ServicePacket._Type))
+                ServiceMap[ServicePacket._Type].HandlePacket(ref ServicePacket, ref Client);
         }
-
     }
 }
