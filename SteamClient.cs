@@ -72,6 +72,36 @@ namespace SteamServer
             return EnqueueMessage(NewMessage);
         }
 
+        // Friendslist.
+        public PersonaState SocialStatus = PersonaState.Online;
+        public List<SteamFriend> FriendsList = new List<SteamFriend>();
+        void UpdateFriendslistFromAPI()
+        {
+            FriendsList.Clear();
+            // Something something GET HHS.com/API/Friendslist.php?XUID={0}
+        }
+        void UpdateFriendslistFromClients()
+        {
+            lock (SteamServer.Clients)
+            {
+                FriendsList.Clear();
+
+                foreach (UInt32 ClientID in SteamServer.Clients.Keys)
+                {
+                    FriendsList.Add(SteamFriend.CreateFromClient(ClientID));
+                }
+            }
+        }
+        public void UpdateFriendslist()
+        {
+            if (SteamServer.Anonymous)
+                UpdateFriendslistFromClients();
+            else
+                UpdateFriendslistFromAPI();
+        }
+
+
+
 
 
 

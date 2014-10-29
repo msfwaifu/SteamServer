@@ -13,7 +13,7 @@ using System.Text;
 
 namespace SteamServer
 {
-    enum PersonaState
+    public enum PersonaState
     {
         Offline = 0,
         Online = 1,
@@ -34,7 +34,7 @@ namespace SteamServer
 
             lock (SteamServer.Clients)
             {
-                NewFriend.Status = PersonaState.Online;
+                NewFriend.Status = SteamServer.Clients[ID].SocialStatus;
                 NewFriend.XUID = SteamServer.Clients[ID].XUID;
 
                 NewFriend.Username = new Byte[SteamServer.Clients[ID].Username.Length];
