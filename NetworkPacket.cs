@@ -14,6 +14,16 @@ using System.Text;
 
 namespace SteamServer
 {
+    // The packets we handle.
+    public enum PublicPacketTypes : ulong
+    {
+        P2PMessage = 134
+    }
+    public enum PrivatePacketTypes : ulong
+    {
+
+    }
+
     class NetworkPacket
     {
         public UInt64 _TransactionID;
