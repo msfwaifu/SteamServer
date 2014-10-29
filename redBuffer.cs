@@ -55,6 +55,10 @@ namespace SteamServer
         }
 
         // Utility methods.
+        public Byte[] GetBuffer()
+        {
+            return Buffer.ToArray();
+        }
         public UInt32 CurrentPosition()
         {
             return Position;

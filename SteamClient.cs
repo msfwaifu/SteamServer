@@ -100,9 +100,9 @@ namespace SteamServer
                 UpdateFriendslistFromAPI();
         }
 
-
-
-
+        // Authentication.
+        public Boolean isAuthenticated = false;
+        public UInt32 SessionID = 0;
 
 
     }
