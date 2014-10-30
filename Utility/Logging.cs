@@ -78,7 +78,7 @@ namespace SteamServer
                 // Get the calling methods name.
                 if (Frame != null && Frame.GetMethod().DeclaringType != null)
                 {
-                    Caller = String.Format("{0}: ", Frame.GetMethod().DeclaringType.Name);
+                    Caller = String.Format("{0}: ", Frame.GetMethod().Name);
                 }
 
                 // Prepend the error level.

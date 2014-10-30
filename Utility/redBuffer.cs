@@ -413,7 +413,7 @@ namespace SteamServer
             if(!Write(1, BitConverter.GetBytes((Byte)DataTypes.STRING)))
                 return false;
 
-           if(!Write(4, BitConverter.GetBytes(Temp.Length)))
+           if(!WriteUInt32((UInt32)Temp.Length))
                 return false;
 
             return Write((UInt32)Temp.Length, Temp);
@@ -423,7 +423,7 @@ namespace SteamServer
             if (!Write(1, BitConverter.GetBytes((Byte)DataTypes.BLOB)))
                 return false;
 
-            if (!Write(4, BitConverter.GetBytes(Data.Length)))
+            if (!WriteUInt32((UInt32)Data.Length))
                 return false;
 
             return Write((UInt32)Data.Length, Data);

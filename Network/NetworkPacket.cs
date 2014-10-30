@@ -69,10 +69,6 @@ namespace SteamServer
             Byte[] Key = new Byte[24];
             Byte[] EncryptedData = new Byte[1];
 
-            // Generate the IV and key.
-            IV = SteamCrypto.CalculateIV(_Seed);
-            Key = SteamCrypto.CalculateIV(Client.SessionID);
-
             // Read the packet.
             Buffer.ReadUInt64(ref _TransactionID);
             Buffer.ReadUInt64(ref _XUID);
@@ -82,16 +78,21 @@ namespace SteamServer
             Buffer.ReadUInt32(ref _IP);
             Buffer.ReadBlob(ref EncryptedData);
 
+            // Generate the IV and key.
+            IV = SteamCrypto.CalculateIV(_Seed);
+            Key = SteamCrypto.CalculateIV(Client.SessionID);
+            Array.Resize<Byte>(ref IV, 8);
+
             // Create a new buffer and encrypt the data.
-            _Data = new Byte[_Data.Length];
+            _Data = new Byte[EncryptedData.Length];
             _Data = SteamCrypto.Decrypt(EncryptedData, Key, IV);
         }
-        public void CreatePacket(UInt64 TransactionID, UInt32 Type, redBuffer Data, SteamClient Client)
+        public void CreatePacket(UInt64 TransactionID, UInt32 Result, redBuffer Data, SteamClient Client)
         {
             _TransactionID = TransactionID;
             _XUID = Client.XUID;
             _Username = SteamCrypto.fnv1_hash(Client.Username);
-            _Type = Type;
+            _Type = Result;
             _Seed = (UInt32)(new Random((Int32)DateTime.Now.Ticks).Next());
             _IP = (UInt32)Client.GetIP().Address; // We will only use ipv4 so we ignore that it's deprecated.
 
@@ -107,7 +108,7 @@ namespace SteamServer
             NewBuffer.WriteBlob(Encoding.ASCII.GetBytes(Data));
             NewPacket.CreatePacket(TransactionID, Type, NewBuffer, Client);
 
-            NewBuffer.Rewind();
+            NewBuffer = new redBuffer();
             NewPacket.Serialize(ref NewBuffer, Client);
 
             return NewBuffer.GetBuffer();

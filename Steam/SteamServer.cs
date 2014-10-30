@@ -47,7 +47,7 @@ namespace SteamServer
                 SessionID = 0;
                 isConnected = false;
                 ShouldConnect = false;
-                Anonymous = false;
+                Anonymous = true;
                 Port = 42042;
             }
             else
@@ -94,6 +94,8 @@ namespace SteamServer
         }
         public static void Send(UInt32 ID, Byte[] Data)
         {
+            Byte[] ResultBuffer = new Byte[1];
+
             if (!isClientConnected(ID))
             {
                 RemoveClient(ID);
@@ -102,9 +104,13 @@ namespace SteamServer
 
             try
             {
+                ResultBuffer = new Byte[Data.Length + 4];
+                Array.Copy(BitConverter.GetBytes(Data.Length), 0, ResultBuffer, 0, 4);
+                Array.Copy(Data, 0, ResultBuffer, 4, Data.Length);
+
                 lock (Clients)
                 {
-                    Clients[ID].ClientSocket.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(SendCallback), Clients[ID]);
+                    Clients[ID].ClientSocket.BeginSend(ResultBuffer, 0, ResultBuffer.Length, SocketFlags.None, new AsyncCallback(SendCallback), Clients[ID]);
                 }
             }
             catch (Exception e)
@@ -177,8 +183,8 @@ namespace SteamServer
         }
         public static bool isClientConnected(UInt32 ID)
         {
-            if (ID == 0xFFFFFFFF)
-                return false;
+            if (Clients.ContainsKey(ID))
+                return true;
 
             try
             {
@@ -188,12 +194,12 @@ namespace SteamServer
             catch (Exception e)
             {
                 Log.Warning(e.Message);
-                return false;
+                return true;
             }
         }
         public static void RemoveClient(UInt32 ID)
         {
-            if (ID == 0xFFFFFFFF)
+            if (Clients.ContainsKey(ID))
                 return;
 
             lock (Clients)
@@ -291,8 +297,7 @@ namespace SteamServer
                 else
                 {
                     // We handle the packet and send a response here.
-                    //Send(Client.ClientID, PacketHandler.HandlePacket(Client));
-
+                    ServiceRouter.HandlePacket(Client);
 
                     // Continue.
                     Client.ClientSocket.BeginReceive(Client.Buffer, 0, SteamClient.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), Client);
