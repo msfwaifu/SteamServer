@@ -38,7 +38,7 @@ namespace SteamServer.Services
             if (SteamServer.Anonymous)
             {
                 Client.Username = Username;
-                Client.XUID = (UInt64)0x110000100000000;
+                Client.XUID = (UInt64)0x110000110000000;
                 Client.XUID += Client.ClientID;
                 Client.SessionID = Client.ClientID;
                 Client.isAuthenticated = true;
