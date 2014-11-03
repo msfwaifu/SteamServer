@@ -41,6 +41,8 @@ namespace SteamServer
         // General methods.
         public static void InitServer()
         {
+            new Thread(new ThreadStart(CleanupThread)).Start();
+
             if (!File.Exists("NodeSettings.xml"))
             {
                 NodeID = 0;
@@ -199,7 +201,7 @@ namespace SteamServer
         }
         public static void RemoveClient(UInt32 ID)
         {
-            if (Clients.ContainsKey(ID))
+            if (!Clients.ContainsKey(ID))
                 return;
 
             lock (Clients)
@@ -212,6 +214,10 @@ namespace SteamServer
 
                     // Send a proper disconnect.
                     Clients[ID].ClientSocket.BeginDisconnect(false, new AsyncCallback(DisconnectCallback), Clients[ID]);
+
+                    // And get impatient.
+                    Clients[ID].ClientSocket.Shutdown(SocketShutdown.Both);
+                    Clients[ID].ClientSocket.Close(1000);
                 }
                 catch (Exception e)
                 {
@@ -296,6 +302,9 @@ namespace SteamServer
                 }
                 else
                 {
+                    // Update the heartbeat.
+                    Client.LastPacket = DateTime.Now;
+
                     // We handle the packet and send a response here.
                     ServiceRouter.HandlePacket(Client);
 
@@ -307,6 +316,57 @@ namespace SteamServer
             {
                 Log.Warning(e.Message);
                 RemoveClient(Client.ClientID);
+            }
+        }
+
+        // Free the sockets if a client drops.
+        private static void CleanupThread()
+        {
+            try
+            {
+                List<SteamClient> ToPurge = new List<SteamClient>();
+
+                while (true)
+                {
+                    Thread.Sleep(1000);
+
+                    lock (Clients)
+                    {
+                        foreach (KeyValuePair<UInt32, SteamClient> Client in Clients)
+                        {
+                            if (Client.Value == null)
+                            {
+                                ToPurge.Add(Client.Value);
+                                continue;
+                            }
+
+                            if (!isClientConnected(Client.Key))
+                            {
+                                ToPurge.Add(Client.Value);
+                                continue;
+                            }
+
+                            if (Client.Value.LastPacket != null)
+                            {
+                                if ((DateTime.Now - Client.Value.LastPacket).TotalSeconds > 15)
+                                {
+                                    ToPurge.Add(Client.Value);
+                                    continue;
+                                }
+                            }
+                        }
+
+                        foreach (SteamClient Client in ToPurge)
+                        {
+                            SteamServer.RemoveClient(Client.ClientID);
+                        }
+                        ToPurge.Clear();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warning(e.ToString());
             }
         }
     }

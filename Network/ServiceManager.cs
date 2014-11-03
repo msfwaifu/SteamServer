@@ -26,6 +26,7 @@ namespace SteamServer
 
             ServiceMap.Add((UInt32)PublicPacketTypes.P2PMessage, new Services.Message());
             ServiceMap.Add((UInt32)PrivatePacketTypes.Authentication, new Services.Auth());
+            ServiceMap.Add((UInt32)PublicPacketTypes.Friendslist, new Services.Friends());
         }
 
         // Handles all packets and calls the service designated to the packet type.
@@ -43,9 +44,15 @@ namespace SteamServer
             // Log that we got a packet for debug.
             Log.Debug(String.Format("PacketType: {0}", ServicePacket._Type));
 
+            // If it's a heartbeat packet, drop it.
+            if(ServicePacket._Type == 64)
+                return;
+
             // Send the packet to the right service.
             if(ServiceMap.ContainsKey(ServicePacket._Type))
                 ServiceMap[ServicePacket._Type].HandlePacket(ref ServicePacket, ref Client);
+            else
+                Log.Debug(String.Format("Couldn't find a service for {0}", ServicePacket._Type));
         }
     }
 }

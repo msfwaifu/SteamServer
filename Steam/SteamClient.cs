@@ -22,6 +22,7 @@ namespace SteamServer
         public UInt32 ClientID; // Index for arrays.
         public UInt64 XUID;     // Ingame identifier.
         public UInt64 HWID;     // Hardware identifier.
+        public UInt64 AppID;    // Game identifier.
 
         // Networking.
         public Socket ClientSocket;
@@ -86,10 +87,18 @@ namespace SteamServer
             {
                 FriendsList.Clear();
 
-                foreach (UInt32 ClientID in SteamServer.Clients.Keys)
+                foreach (UInt32 ClientKey in SteamServer.Clients.Keys)
                 {
-                    FriendsList.Add(SteamFriend.CreateFromClient(ClientID));
+                    if (ClientID != ClientKey)
+                        FriendsList.Add(SteamFriend.CreateFromClient(ClientKey));
                 }
+
+                // Debug
+                SteamFriend NewFriend = new SteamFriend();
+                NewFriend.XUID = 0x1100001DEADC0DE;
+                NewFriend.Username = Encoding.ASCII.GetBytes("NotConvery");
+                NewFriend.Status = PersonaState.Online;
+                FriendsList.Add(NewFriend);
             }
         }
         public void UpdateFriendslist()

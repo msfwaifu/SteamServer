@@ -18,6 +18,7 @@ namespace SteamServer
     public enum PublicPacketTypes
     {
         P2PMessage = 134,
+        Friendslist = 192,
     }
     public enum PrivatePacketTypes
     {
